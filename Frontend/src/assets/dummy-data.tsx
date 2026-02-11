@@ -101,8 +101,8 @@ export const footerLinks = [
     {
         title: "Quick Links",
         links: [
-            { name: "Home", url: "#" },
-            { name: "Features", url: "#" },
+            { name: "Home", url: "/" },
+            { name: "Features", url: "/features" },
             { name: "Prices", url: "#" },
             { name: "FAQ", url: "#" }
         ]
