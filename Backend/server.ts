@@ -6,6 +6,7 @@ import { clerkMiddleware } from '@clerk/express'
 import clerkWebHooks from './controllers/clerk.js';
 import * as Sentry from "@sentry/node";
 import userRouter from './routes/userRoutes.js';
+import projectRouter from './routes/projectRoutes.js';
 
 
 dotenv.config();
@@ -19,14 +20,13 @@ app.post('/api/clerk',express.raw({ type: 'application/json' }), clerkWebHooks)
 
 app.use(express.json());
 app.use(clerkMiddleware());
+
+//Routes
 app.use('/api/user', userRouter);
+app.use('/api/project', projectRouter);
 
 app.get('/', (req: Request, res: Response) => {
     res.send('Server is live');
-});
-
-app.get("/debug-sentry", function mainHandler(req, res) {
-  throw new Error("My first Sentry error!");
 }); 
 
 // The error handler must be registered before any other error middleware and after all controllers
