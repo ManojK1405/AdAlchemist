@@ -202,8 +202,61 @@ export const createProject = async (req: Request, res: Response) => {
 
 //create video
 export const createVideo = async (req: Request, res: Response    ) => {
-    try {
+    const {userId} = req.auth();
+        const { projectId } = req.body;
+
+        let isCreditDeducted = false;
         
+        const user = await prisma.user.findUnique({
+          where: { id: userId },
+        });
+
+        if(!user || user.credits < 10){
+            return res.status(400).json({ message: 'User not found or insufficient credits' });
+        }
+
+        //deduct credits for video generation i.e 10 credits
+        await prisma.user.update({
+            where: { id: userId },
+            data: {
+              credits: { decrement: 10 },
+            },
+          }).then(() => {
+            isCreditDeducted = true;
+          });
+    try {
+        const project = await prisma.project.findUnique({
+            where: { id: projectId ,userId},
+            include: {
+            user: true,
+          },
+        });
+
+        if(!project || project.isGenerating){
+            return res.status(404).json({ message: 'Project not found or is generating' });
+        }
+
+        if(project.generatedVideo){
+            return res.status(400).json({ message: 'Video already generated' });
+        }
+
+        await prisma.project.update({
+            where: { id: projectId },
+            data: {
+              isGenerating: true,
+            },
+          });
+
+          const prompt = `make the person showcase the product which is ${project.productName}. Product Description: ${project.productDescription || "No description available"}`;
+
+          const model = 'veo-3.1-generate-preview';
+
+          if(!project.generatedImage){
+            throw new Error('Generated image not found');
+          }
+
+          
+
     } catch (error:any) {
         Sentry.captureException(error); // Log the error to Sentry
         res.status(500).json({ message: 'Internal server error' });
