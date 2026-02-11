@@ -24,7 +24,7 @@ function App() {
 				<Route path="/plans" element={<Plans />} />
 				<Route path="/generate" element={<Generator />} />
 				<Route path="/my-generations" element={<MyGenerations />} />
-				<Route path="/result" element={<Result />} />
+				<Route path="/result/:id" element={<Result />} />
 				<Route path="/loading" element={<Loading />} />
 			</Routes>
 
