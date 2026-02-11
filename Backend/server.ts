@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import { clerkMiddleware } from '@clerk/express'
 import clerkWebHooks from './controllers/clerk.js';
 import * as Sentry from "@sentry/node";
+import userRouter from './routes/userRoutes.js';
 
 
 dotenv.config();
@@ -18,7 +19,7 @@ app.post('/api/clerk',express.raw({ type: 'application/json' }), clerkWebHooks)
 
 app.use(express.json());
 app.use(clerkMiddleware());
-
+app.use('/api/user', userRouter);
 
 app.get('/', (req: Request, res: Response) => {
     res.send('Server is live');
