@@ -4,9 +4,10 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-  "build": "prisma generate && tsc",
-  "start": "node dist/server.js"
-},
+    "build": "prisma generate && tsc",
+    "start": "node dist/server.js",
+    "dev": "nodemon --exec tsx server.ts"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
