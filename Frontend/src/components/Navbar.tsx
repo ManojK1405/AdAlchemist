@@ -1,9 +1,11 @@
-import { DollarSignIcon, FolderEditIcon, GalleryHorizontalEnd, MenuIcon, Sparkle, SparkleIcon, XIcon } from 'lucide-react';
+import { DollarSignIcon, FolderEditIcon, GalleryHorizontalEnd, MenuIcon, SparkleIcon, XIcon } from 'lucide-react';
 import { GhostButton, PrimaryButton } from './Buttons';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import {Link, useNavigate} from 'react-router-dom';
-import { useClerk, useUser,UserButton } from '@clerk/clerk-react';
+import {Link, useLocation, useNavigate} from 'react-router-dom';
+import { useClerk, useUser,UserButton, useAuth } from '@clerk/clerk-react';
+import api from '../configs/axios';
+import toast from 'react-hot-toast';
 
 
 export default function Navbar() {
@@ -12,6 +14,10 @@ export default function Navbar() {
     const {user} = useUser();
     const {openSignIn,openSignUp} = useClerk();
     const [isOpen, setIsOpen] = useState(false);
+    const [credits, setCredits] = useState(0);
+
+    const {pathname} = useLocation();
+    const {getToken} = useAuth();
 
     const navLinks = [
         { name: 'Home', href: '/#' },
@@ -19,6 +25,26 @@ export default function Navbar() {
         { name: 'Community', href: '/community' },
         { name: 'Plans', href: '/plans' }
     ];
+
+    const getCredits = async ()=>{
+        try {
+            const token = await getToken();
+            const {data} = await api.get('/api/user/credits',{
+                headers:{
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            setCredits(data.credits);
+        } catch (error:any) {
+            toast.error(error?.response?.data?.message || 'Failed to fetch credits');
+        }
+    }
+
+    useEffect(()=>{
+        if(user){
+            (async ()=>await getCredits())();
+        }
+    },[user,pathname])
 
     return (
         <motion.nav className='fixed top-5 left-0 right-0 z-50 px-4'
@@ -30,7 +56,7 @@ export default function Navbar() {
             <div className='max-w-6xl mx-auto flex items-center justify-between bg-black/50 backdrop-blur-md border border-white/4 rounded-2xl p-3'>
                 <Link to='/' onClick={()=>scrollTo(0,0)}>
                     <span className="text-xl font-extrabold tracking-wide text-gray-500">
-                        Ad<span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Alchemist</span>
+                        Ad<span className="bg-linear-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Alchemist</span>
                     </span>
                 </Link>
 
@@ -49,12 +75,12 @@ export default function Navbar() {
                                 Sign in
                             </button>
                             <PrimaryButton onClick={()=>openSignUp()} className='max-sm:text-xs hidden sm:inline-block'>Get Started</PrimaryButton>
-                        </div>
+                        </div> 
                     </div>
                 ):(
                     <div className="flex gap-2">
                         <GhostButton onClick={()=>navigate('/plans')} className="border-none text-gray-300 sm:py-1.5">
-                            Credits:
+                            Credits:{credits}
                         </GhostButton>
                         <UserButton>
                             <UserButton.MenuItems>

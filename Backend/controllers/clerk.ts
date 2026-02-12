@@ -49,41 +49,42 @@ const clerkWebHooks = async (req: Request, res: Response) => {
       }
 
       // 💳 PAYMENT SUCCESS (Credits Allocation)
-      case "paymentAttempt.updated": {
-        if (
-          (data.charge_type === "recurring" ||
-            data.charge_type === "checkout") &&
-          data.status === "paid"
-        ) {
+        case "paymentAttempt.updated": {
+      if (
+        (data.charge_type === "recurring" ||
+          data.charge_type === "checkout") &&
+        data.status === "paid"
+      ) {
+        const clerkUserId = data?.payer?.user_id;
 
-          const creditsMap = {
-            creator: 120,
-            brands: 350,
-          };
+        const planName =
+          data?.subscription_items?.[0]?.plan?.name?.toLowerCase().trim();
 
-          const clerkUserId = data?.payer?.user_id;
-          const planSlug =
-            data?.subscription_items?.[0]?.plan?.slug as keyof typeof creditsMap;
+        const creditMap: Record<string, number> = {
+          "creator plan": 120,
+          "brands plan": 350,
+        };
 
-          if (!clerkUserId) {
-            return res.status(400).json({ message: "Missing user id" });
-          }
+        const creditsToAdd = creditMap[planName];
 
-          if (!planSlug || !creditsMap[planSlug]) {
-            return res.status(400).json({ message: "Invalid plan id" });
-          }
-
-          await prisma.user.update({
-            where: { id: clerkUserId },
-            data: {
-              credits: {
-                increment: creditsMap[planSlug],
-              },
-            },
-          });
+        if (!creditsToAdd) {
+          console.log("Unknown plan name:", planName);
+          return res.json({ message: "Plan not recognized, ignored." });
         }
-        break;
+
+        await prisma.user.update({
+          where: { id: clerkUserId },
+          data: {
+            credits: { increment: creditsToAdd },
+          },
+        });
+
+        console.log(`Added ${creditsToAdd} credits to ${clerkUserId}`);
       }
+
+      break;
+          }
+
 
       default:
         break;

@@ -2,8 +2,17 @@ import { useState } from "react"
 import { Loader2 } from "lucide-react"
 import Title from "../components/Title"
 import UploadZone from "../components/UploadZone"
+import { useAuth, useUser } from "@clerk/clerk-react"
+import { useNavigate } from "react-router-dom"
+import { toast } from "react-hot-toast/headless"
+import api from "../configs/axios"
 
 const Generator = () => {
+
+  const {user} = useUser()
+  const {getToken} = useAuth();
+  const navigate = useNavigate();
+
   const [name, setName] = useState('')
   const [productName, setProductName] = useState('')
   const [productDescription, setProductDescription] = useState('')
@@ -24,19 +33,44 @@ const Generator = () => {
   }
 
   const handleGenerate = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    if (!productImage || !modelImage) return
+    if(!user){
+      return toast("Please sign in to generate images")
+    }
+
+    if(!productImage || !modelImage || !name || !productName|| !aspectRatio){
+      return toast("Please fill in all required fields")
+    }
 
     try {
-      setIsGenerating(true)
+      setIsGenerating(true);
+      
+      const formData = new FormData();
+      formData.append('name', name);
+      formData.append('productName', productName);
+      formData.append('productDescription', productDescription);
+      formData.append('aspectRatio', aspectRatio);
+      formData.append('userPrompt', userPrompt);
+      formData.append('images', productImage);
+      formData.append('images', modelImage);
 
-      // 🔥 Replace with your backend call
-      await new Promise((resolve) => setTimeout(resolve, 2500))
+      const token = await getToken();
 
-    } finally {
-      setIsGenerating(false)
+      const {data} = await api.post('/api/project/create',formData,{
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      
+      toast("Project created successfully");
+      navigate(`/result/${data.projectId}`);
+
+    } catch (error) {
+      setIsGenerating(false);
+      toast("Failed to generate project") 
     }
+
   }
 
   return (

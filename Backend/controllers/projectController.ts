@@ -397,4 +397,31 @@ export const deleteProject = async (req: Request, res: Response) => {
   }
 };
 
+export const getProjectById = async (req: Request, res: Response) => {
+  try {
+    const projectId = req.params.projectId as string;
+    const userId = (req as any).auth?.userId as string;
 
+
+    if (!projectId) {
+      return res.status(400).json({ message: "Project ID is required" });
+    }
+
+    const project = await prisma.project.findFirst({
+      where: {
+        id: projectId,
+        userId: userId
+      }
+    });
+
+    if (!project) {
+      return res.status(404).json({ message: "Project not found" });
+    }
+
+    return res.json(project);
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};

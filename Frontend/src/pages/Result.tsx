@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import type { Project } from "../Types";
-import { dummyGenerations } from "../assets/assets";
 import {
   ImageIcon,
   Loader2Icon,
@@ -8,34 +7,97 @@ import {
   SparkleIcon,
   VideoIcon,
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { GhostButton, PrimaryButton } from "../components/Buttons";
+import { useAuth, useUser } from "@clerk/clerk-react";
+import api from "../configs/axios";
+import { toast } from "react-hot-toast/headless";
 
 const Result = () => {
+
+  const{projectId} = useParams();
+  const {getToken} = useAuth();
+  const {user,isLoaded} = useUser();
+  const navigate = useNavigate();
+
   const [project, setProjectData] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
 
   // Fetch project
   const fetchProjectData = async () => {
-    setLoading(true);
-
-    setTimeout(() => {
-      setProjectData(dummyGenerations[0]); // gen_1 (no video initially)
+    try {
+      const token = await getToken();
+      const {data} = await api.get(`/api/project/${projectId}`,{
+        headers:{
+          Authorization: `Bearer ${token}`
+        }
+      });
+      setProjectData(data);
+      setIsGenerating(data.project.isGenerating);
       setLoading(false);
-    }, 1500);
+
+    } catch (error:any) {
+      toast.error(error?.response?.data?.message || "Failed to load project data");
+    }
   };
 
   // Simulate video generation
-  const handleGenerateVideo = () => {
-    if (!project) return;
-
+  const handleGenerateVideo = async () => {
+  try {
     setIsGenerating(true);
-  };
+
+    const token = await getToken();
+
+    const { data } = await api.post(
+      `/api/projects/video`,
+      { projectId },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    setProjectData(prev => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        generatedVideo: data.videoUrl,
+        isGenerating: false
+      };
+    });
+
+    toast.success("Video generated successfully!");
+    setIsGenerating(false);
+
+  } catch (error: any) {
+    toast.error(error?.response?.data?.message || "Failed to generate video");
+    setIsGenerating(false);
+  }
+};
+
 
   useEffect(() => {
+  if (!isLoaded) return;
+
+  if (!user) {
+    navigate("/");
+    return;
+  }
+
+  if (!project?.id) {
     fetchProjectData();
-  }, []);
+  }
+}, [user, isLoaded, project?.id]);
+
+  //fetch project every 10 seconds to check for video generation status
+  useEffect(() => {
+    if (user && isGenerating) return;
+
+    const interval = setInterval(() => {
+      fetchProjectData();
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, [user,isGenerating]);
+
 
   // Loading Screen
   if (loading || !project) {
@@ -74,7 +136,7 @@ const Result = () => {
               <div
                 className={`${
                   project.aspectRatio === "9:16"
-                    ? "aspect-[9/16]"
+                    ? "aspect-9/16"
                     : "aspect-video"
                 } w-full rounded-2xl overflow-hidden bg-gray-900`}
               >

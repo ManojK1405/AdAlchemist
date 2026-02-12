@@ -10,10 +10,13 @@ import Plans from './pages/Plans';
 import Generator from './pages/Generator';
 import MyGenerations from './pages/MyGenerations';
 import Loading from './pages/Loading';
+import { Toaster } from 'react-hot-toast';
+
 
 function App() {
 	return (
 		<>
+			<Toaster toastOptions={{style:{background:"#333",color:"#fff"}}}/>
 			<SoftBackdrop />
 			<LenisScroll />
 			<Navbar />
@@ -24,7 +27,7 @@ function App() {
 				<Route path="/plans" element={<Plans />} />
 				<Route path="/generate" element={<Generator />} />
 				<Route path="/my-generations" element={<MyGenerations />} />
-				<Route path="/result/:id" element={<Result />} />
+				<Route path="/result/:projectId" element={<Result />} />
 				<Route path="/loading" element={<Loading />} />
 			</Routes>
 
