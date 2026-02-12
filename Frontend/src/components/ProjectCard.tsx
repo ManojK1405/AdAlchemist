@@ -169,7 +169,7 @@ const ProjectCard = ({
           {gen.productDescription && (
             <div className="mt-3">
                 <p className="text-xs text-gray-400 mb-1">Description</p>
-                <div className="text-sm text-gray-300 bg-white/3 p-2 rounded-md break-words">{gen.productDescription}</div>
+                <div className="text-sm text-gray-300 bg-white/3 p-2 rounded-md wrap-break-word">{gen.productDescription}</div>
             </div>
           )}
 

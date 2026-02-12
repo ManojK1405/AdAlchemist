@@ -34,7 +34,8 @@ const Result = () => {
         }
       });
       setProjectData(data);
-      setIsGenerating(data.project.isGenerating);
+      setIsGenerating(data.isGenerating);
+
       setLoading(false);
 
     } catch (error:any) {
@@ -50,7 +51,7 @@ const Result = () => {
     const token = await getToken();
 
     const { data } = await api.post(
-      `/api/projects/video`,
+      `/api/project/video`,
       { projectId },
       { headers: { Authorization: `Bearer ${token}` } }
     );
@@ -89,7 +90,7 @@ const Result = () => {
 
   //fetch project every 10 seconds to check for video generation status
   useEffect(() => {
-    if (user && isGenerating) return;
+    if (!user || !isGenerating) return;
 
     const interval = setInterval(() => {
       fetchProjectData();
@@ -97,6 +98,25 @@ const Result = () => {
 
     return () => clearInterval(interval);
   }, [user,isGenerating]);
+
+
+
+  //Helper Function
+  const handleDownload = async (url: string, filename: string): Promise<void> => {
+      try {
+        const response = await fetch(url);
+        const blob = await response.blob();
+
+        const link = document.createElement("a");
+        link.href = window.URL.createObjectURL(blob);
+        link.download = filename;
+        link.click();
+      } catch (err) {
+        console.error("Download failed", err);
+      }
+  };
+
+
 
 
   // Loading Screen
@@ -168,25 +188,28 @@ const Result = () => {
 
               <div className="flex flex-col gap-3">
 
-                <a href={project.generatedImage} download>
                   <GhostButton
-                    disabled={!project.generatedImage}
+                    onClick={() =>
+                      handleDownload(project?.generatedImage!, `image-${project?.id}.jpg`)
+                    }
+                    disabled={!project?.generatedImage}
                     className="w-full justify-center rounded-md py-3 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <ImageIcon className="size-4" />
                     Download Image
                   </GhostButton>
-                </a>
 
-                <a href={project.generatedVideo} download>
+
                   <GhostButton
-                    disabled={!project.generatedVideo}
+                    onClick={() => handleDownload(project?.generatedVideo!, `video-${project?.id}.mp4`)}
+                    disabled={!project?.generatedVideo || project?.generatedVideo.trim() === ""}
                     className="w-full justify-center rounded-md py-3 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <VideoIcon className="size-4" />
                     Download Video
                   </GhostButton>
-                </a>
+
+
 
               </div>
             </div>

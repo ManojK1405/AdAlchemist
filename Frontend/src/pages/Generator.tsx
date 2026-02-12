@@ -194,7 +194,7 @@ const Generator = () => {
           <button
             type="submit"
             disabled={isGenerating}
-            className="px-12 py-4 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-600 font-semibold flex items-center gap-3 disabled:opacity-60"
+            className="px-12 py-4 rounded-xl bg-linear-to-r from-indigo-500 to-violet-600 font-semibold flex items-center gap-3 disabled:opacity-60"
           >
             {isGenerating ? (
               <>
