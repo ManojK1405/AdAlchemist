@@ -4,22 +4,46 @@ import type { Project } from "../Types";
 import { Loader2Icon } from "lucide-react";
 import ProjectCard from "../components/ProjectCard";
 import { PrimaryButton } from "../components/Buttons";
+import { useAuth, useUser } from "@clerk/clerk-react";
+import api from "../configs/axios";
+import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 const MyGenerations = () => {
+
+  const {user,isLoaded} = useUser();
+  const {getToken} = useAuth();
+  const navigate = useNavigate();
 
   const [generations, setGenerations] = useState<Project[]>([]);
     const [loading, setLoading] = useState(true);
   
     const fetchMyGenerations = async ()=>{
-      setTimeout (()=>{
-        setGenerations(dummyGenerations);
+      try {
+        const token =await getToken();
+        const {data} = await api.get("/api/user/projects",{
+          headers:{
+            Authorization: `Bearer ${token}`
+          }
+        });
+        if(!data) throw new Error("No data received");
+        setGenerations(data.projects);
         setLoading(false);
-      }, 3000)
+      } catch (error:any) {
+        toast.error(error?.response?.data?.message || "Failed to load generations");
+        setLoading(false);
+      } finally {
+        setLoading(false)
+      }
     }
   
     useEffect(()=>{
-      fetchMyGenerations();
-    }, [])
+      if(user){
+        fetchMyGenerations();
+      }else if(isLoaded && !user){
+        navigate("/");
+      }
+    }, [user])
 
   return loading? (
     <div className="flex items-center justify-center min-h-screen">

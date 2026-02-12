@@ -4,6 +4,9 @@ import { useNavigate } from "react-router-dom"
 import { useState } from "react"
 import { EllipsisIcon, ImageIcon, Loader2Icon, Share2Icon, Trash2Icon, VideoIcon } from "lucide-react"
 import { GhostButton, PrimaryButton } from "./Buttons"
+import { useAuth } from "@clerk/clerk-react"
+import toast from "react-hot-toast"
+import api from "../configs/axios"
 
 
 const ProjectCard = ({
@@ -16,25 +19,55 @@ const ProjectCard = ({
   forCommunity?: boolean
 }) => {
 
+  const {getToken} = useAuth();
+
+
   const navigate = useNavigate()
   const [menuOpen, setMenuOpen] = useState(false)
 
   const handleDelete = async (id: string)=>{
-    const confirm = window.confirm('Are you sure you want to delete this project?');
-    if(!confirm) return;
-    console.log(id)
+  const confirm = window.confirm('Are you sure you want to delete this project?');
+  if(!confirm) return;
+
+  try {
+    const token = await getToken();
+
+    // optimistic remove
+    setGenerations(prev => prev.filter(gen => gen.id !== id));
+
+    await api.delete(`/api/project/${id}`,{
+      headers:{ Authorization:`Bearer ${token}` }
+    });
+
+    toast.success("Project deleted successfully");
+
+  } catch (error:any) {
+    toast.error(error?.response?.data?.message || "Delete failed");
+    console.log(error);
   }
+}
 
   const togglePublish = async (projectId: string)=>{
-    console.log(projectId)
+    try {
+      const token = await getToken();
+      const {data} = await api.post(`/api/user/projects/${projectId}`,{},{
+        headers:{ Authorization:`Bearer ${token}` }
+      })
+      setGenerations((generations)=>generations.map((gen)=>gen.id === projectId ? {...gen, isPublished: data.isPublished} : gen));
+      toast.success(data.isPublished ? 'Project published' : 'Project unpublished');
+    } catch (error:any) {
+      toast.error(error?.response?.data?.message || error.message);
+      console.log(error);
+    }
   }
+
 
   return (
     <div key={gen.id} className="mb-4 break-inside-avoid">
       <div className="bg-white/5 border border-white/10 rounded-x1 overflow-hidden hover:border-white/20 transition group">
 
         {/* preview image */}
-        <div className={`${gen?.aspectRatio === '9:16' ? 'aspect-[9/16]' : 'aspect-video'} relative overflow-hidden`}>
+        <div className={`${gen?.aspectRatio === '9:16' ? 'aspect-9/16' : 'aspect-video'} relative overflow-hidden`}>
 
           {gen.generatedImage && (
             <img

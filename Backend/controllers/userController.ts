@@ -81,7 +81,10 @@ export const toggleProjectPublic = async (req: Request, res: Response ) => {
             },
         });
 
-        res.json({message: 'Project updated'});
+        res.json({
+            message: 'Project updated',
+            isPublished: !project.isPublished
+        });
     } catch (error: any) {
         Sentry.captureException(error); // Log the error to Sentry
         res.status(500).json({ message: 'Internal server error' });
