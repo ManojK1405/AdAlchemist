@@ -9,6 +9,8 @@ import {
 } from "@google/genai";
 import fs from "fs";
 import ai from "../configs/ai.js";
+import axios from "axios";
+import path from "path";
 
 const loadImage = (filePath: string, mimeType: string) => {
   return {
@@ -247,17 +249,96 @@ export const createVideo = async (req: Request, res: Response    ) => {
             },
           });
 
-          const prompt = `make the person showcase the product which is ${project.productName}. Product Description: ${project.productDescription || "No description available"}`;
+        const prompt = `make the person showcase the product which is ${project.productName}. Product Description: ${project.productDescription || "No description available"}`;
 
-          const model = 'veo-3.1-generate-preview';
+        const model = 'veo-3.1-generate-preview';
 
-          if(!project.generatedImage){
+        if(!project.generatedImage){
             throw new Error('Generated image not found');
-          }
+        }
 
-          
+        const image = await axios.get(project.generatedImage, { responseType: 'arraybuffer' })
+
+        const imageBytes:any = Buffer.from(image.data);
+
+        let operation:any = await ai.models.generateVideos({
+            model,
+            prompt,
+            image: {
+                imageBytes: imageBytes.toString('base64'),
+                mimeType: 'image/png',
+            },
+            config:{
+                aspectRatio:project?.aspectRatio || '9:16',
+                numberOfVideos:1,
+                resolution:'720p'
+            }
+
+        });
+
+        while(!operation.done){
+            await new Promise(resolve => setTimeout(resolve, 10000)); // wait for 10 seconds before checking again
+            operation = await ai.operations.getVideosOperation({
+                operation: operation,
+            });
+        }
+
+        const fileName = `${userId}_${Date.now()}.mp4`;
+
+        const filePath = path.join('videos', fileName);
+
+        //create image directory if not exists
+        fs.mkdirSync('videos', { recursive: true });
+
+        if(!operation.response.generatedVideos){
+            throw new Error('Video generation failed');
+        }
+
+        //Download the video
+        await ai.files.download({
+            file:operation.response.generatedVideos[0].video,
+            downloadPath: filePath,
+        });
+
+        //Upload to cloudinary
+        const uploadResult = await cloudinary.uploader.upload(filePath, {
+            resource_type: "video",
+            folder: "adalchemist/generated",
+        });
+
+        //Update project with generated video url
+        await prisma.project.update({
+            where: { id: project.id },
+            data: {
+                generatedVideo: uploadResult.secure_url,
+                isGenerating: false,
+            },
+        });
+
+        //delete the local video file
+        fs.unlinkSync(filePath);
+
+        return res.json({ message: 'Video generated successfully', videoUrl: uploadResult.secure_url });
 
     } catch (error:any) {
+
+      await prisma.project.update({
+        where: { id: projectId,userId },
+        data: {
+          isGenerating: false,
+          error: error.message,
+        },
+      });
+
+    if (isCreditDeducted) {
+      await prisma.user.update({
+        where: { id: (req as any).auth()?.userId },
+        data: {
+          credits: { increment: 10 },
+        },
+      });
+    }
+
         Sentry.captureException(error); // Log the error to Sentry
         res.status(500).json({ message: 'Internal server error' });
     }
@@ -266,6 +347,13 @@ export const createVideo = async (req: Request, res: Response    ) => {
 //get all published projects
 export const getAllPublishedProjects = async (req: Request, res: Response    ) => {
     try {
+        const projects = await prisma.project.findMany({
+            where: {
+                isPublished: true,
+            }
+        });
+        
+        res.json({ projects });
         
     } catch (error:any) {
         Sentry.captureException(error); // Log the error to Sentry
@@ -274,12 +362,39 @@ export const getAllPublishedProjects = async (req: Request, res: Response    ) =
 }
 
 //delete project
-export const deleteProject = async (req: Request, res: Response    ) => {
-    try {
-        
-    } catch (error:any) {
-        Sentry.captureException(error); // Log the error to Sentry
-        res.status(500).json({ message: 'Internal server error' });
+export const deleteProject = async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).auth?.userId;
+
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
     }
-}
+
+    const projectId = req.params.projectId as string;
+ 
+    // Use findFirst instead of findUnique
+    const project = await prisma.project.findFirst({
+      where: {
+        id: projectId,
+        userId: userId,
+      },
+    });
+
+    if (!project) {
+      return res.status(404).json({ message: "Project not found" });
+    }
+
+    await prisma.project.delete({
+      where: { id: projectId },
+    });
+
+    return res.json({ message: "Project deleted successfully" });
+
+  } catch (error: any) {
+    Sentry.captureException(error);
+    console.error(error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 
