@@ -249,7 +249,7 @@ export const createVideo = async (req: Request, res: Response    ) => {
           where: { id: userId },
         });
 
-        if(!user || user.credits < 10){
+        if(!user || user.credits < 40){
             return res.status(400).json({ message: 'User not found or insufficient credits' });
         }
 
@@ -257,7 +257,7 @@ export const createVideo = async (req: Request, res: Response    ) => {
         await prisma.user.update({
             where: { id: userId },
             data: {
-              credits: { decrement: 10 },
+              credits: { decrement: 40 },
             },
           }).then(() => {
             isCreditDeducted = true;
@@ -410,7 +410,7 @@ Output must look like a real advertisement filmed with a professional camera.
       await prisma.user.update({
         where: { id: (req as any).auth()?.userId },
         data: {
-          credits: { increment: 10 },
+          credits: { increment: 40 },
         },
       });
     }
