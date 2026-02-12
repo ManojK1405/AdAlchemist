@@ -120,14 +120,50 @@ export const createProject = async (req: Request, res: Response) => {
     const img2 = loadImage(images[1].path, images[1].mimetype);
 
     const prompt = {
-      text: `
-      Combine the person and product into a realistic photo.
-      Make the person naturally hold or use the product.
-      Make proper lighting, shadows, scale and perspective.
-      Output ecommerce-quality realistic imagery.
-      ${userPrompt ? `Additional instruction: ${userPrompt}` : ""}
-      `,
-    };
+  text: `
+Create a high-end professional advertisement image.
+
+The person must naturally interact with the product in a realistic way (holding, wearing, or using it depending on product type).
+
+STRICT REQUIREMENTS:
+• Product must be the main focus of the image
+• Product must remain unchanged and clearly visible
+• No distortion of product shape, logo, or design
+• Correct scale and proportions between person and product
+• Photorealistic lighting matching environment
+• Cinematic depth of field
+• Natural shadows and reflections
+• Studio-quality composition
+• Clean background with commercial aesthetics
+• No extra objects unless relevant to product context
+• Skin tones realistic
+• Hands realistic and properly positioned
+• No blur, no artifacts, no AI distortion
+
+STYLE:
+Professional commercial photography
+Premium brand advertisement
+Magazine-quality
+Ultra realistic
+High detail
+Sharp focus
+
+CAMERA:
+Shot on professional DSLR
+85mm lens look
+Shallow depth of field
+Perfect exposure
+Natural color grading
+
+MOOD:
+Modern, premium, aspirational, clean
+
+${userPrompt ? `Extra user requirement: ${userPrompt}` : ""}
+
+Output only the final realistic advertisement image.
+`,
+};
+
 
     const response = await ai.models.generateContent({
       model: "gemini-3-pro-image-preview",
@@ -249,7 +285,47 @@ export const createVideo = async (req: Request, res: Response    ) => {
             },
           });
 
-        const prompt = `make the person showcase the product which is ${project.productName}. Product Description: ${project.productDescription || "No description available"}`;
+        const prompt = `
+Create a professional commercial video.
+
+The person must naturally showcase and interact with the product: ${project.productName}.
+
+Product details: ${project.productDescription || "No description provided"}.
+
+STRICT REQUIREMENTS:
+• Product must stay clearly visible at all times
+• Product must remain unchanged and realistic
+• Natural hand movement and interaction
+• Realistic physics and motion
+• Correct proportions and scale
+• No distortion or morphing
+• No unrealistic motion
+• No glitches or artifacts
+
+CINEMATIC STYLE:
+• Smooth camera movement
+• Professional commercial framing
+• Shallow depth of field
+• Natural lighting
+• Soft shadows
+• Realistic reflections
+
+SHOT TYPE:
+Choose the most suitable shot automatically:
+close-up / medium shot / product focus shot / lifestyle shot
+
+MOOD:
+Premium, modern, aspirational advertisement
+
+QUALITY:
+Ultra realistic
+Brand campaign level
+High detail
+Professional video production
+
+Output must look like a real advertisement filmed with a professional camera.
+`;
+
 
         const model = 'veo-3.1-generate-preview';
 
