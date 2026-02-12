@@ -4,17 +4,16 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "tsx server.ts",
-    "build": "tsc",
-    "dev": "nodemon --exec tsx server.ts"
-  },
+  "build": "prisma generate && tsc",
+  "start": "node dist/server.js"
+},
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
     "@clerk/express": "^1.7.69",
-    "@google/genai": "^1.40.0",
+    "@google/genai": "^1.41.0",
     "@prisma/adapter-pg": "^7.4.0",
     "@prisma/client": "^7.4.0",
     "@sentry/node": "^10.38.0",
