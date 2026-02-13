@@ -1,8 +1,10 @@
 import { ArrowRightIcon } from 'lucide-react';
 import { GhostButton } from './Buttons';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
 export default function CTA() {
+    const navigate = useNavigate();
     return (
         <section className="py-20 2xl:pb-32 px-4">
             <div className="container mx-auto max-w-3xl">
@@ -31,7 +33,7 @@ export default function CTA() {
                             viewport={{ once: true }}
                             transition={{ type: "spring", stiffness: 250, damping: 70, mass: 1, delay: 0.3 }}
                         >
-                            <GhostButton className="px-8 py-3 gap-2">
+                            <GhostButton onClick={()=>{navigate('/generate')}} className="px-8 py-3 gap-2">
                                 Start Creating Now <ArrowRightIcon size={20} />
                             </GhostButton>
                         </motion.div>

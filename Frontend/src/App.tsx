@@ -11,6 +11,8 @@ import Generator from './pages/Generator';
 import MyGenerations from './pages/MyGenerations';
 import Loading from './pages/Loading';
 import { Toaster } from 'react-hot-toast';
+import FAQ from './pages/FAQ';
+import FeaturesPage from './pages/FeaturesPage';
 
 
 function App() {
@@ -25,6 +27,8 @@ function App() {
 				<Route path="/" element={<Home />} />
 				<Route path="/community" element={<Community />} />
 				<Route path="/plans" element={<Plans />} />
+				<Route path="/faq" element={<FAQ />} />
+				<Route path="/features" element={<FeaturesPage />} />
 				<Route path="/generate" element={<Generator />} />
 				<Route path="/my-generations" element={<MyGenerations />} />
 				<Route path="/result/:projectId" element={<Result />} />

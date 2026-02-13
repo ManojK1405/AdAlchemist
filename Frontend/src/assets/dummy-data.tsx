@@ -103,23 +103,22 @@ export const footerLinks = [
         links: [
             { name: "Home", url: "/" },
             { name: "Features", url: "/features" },
-            { name: "Prices", url: "#" },
-            { name: "FAQ", url: "#" }
+            { name: "Prices", url: "/plans" },
+            { name: "FAQ", url: "/faq" }
         ]
     },
     {
         title: "Legal",
         links: [
-            { name: "Privacy Policy", url: "#" },
-            { name: "Terms of Service", url: "#" }
+            { name: "Privacy Policy", url: "/" },
+            { name: "Terms of Service", url: "/" }
         ]
     },
     {
         title: "Connect",
         links: [
-            { name: "Twitter", url: "#" },
-            { name: "LinkedIn", url: "#" },
-            { name: "GitHub", url: "#" }
+            { name: "Office", url: "/" },
+            { name: "GitHub", url: "https://github.com/ManojK1405/AdAlchemist.git" }
         ]
     }
 ];
