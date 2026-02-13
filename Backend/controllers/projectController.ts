@@ -50,7 +50,7 @@ export const createProject = async (req: Request, res: Response) => {
       where: { id: userId },
     });
 
-    if (!user || user.credits < 5) {
+    if (!user || user.credits < 10) {
       return res
         .status(400)
         .json({ message: "User not found or insufficient credits" });
@@ -60,7 +60,7 @@ export const createProject = async (req: Request, res: Response) => {
     await prisma.user.update({
       where: { id: userId },
       data: {
-        credits: { decrement: 5 },
+        credits: { decrement: 10 },
       },
     });
 
@@ -225,7 +225,7 @@ Output only the final realistic advertisement image.
       await prisma.user.update({
         where: { id: (req as any).auth()?.userId },
         data: {
-          credits: { increment: 5 },
+          credits: { increment: 10 },
         },
       });
     }
