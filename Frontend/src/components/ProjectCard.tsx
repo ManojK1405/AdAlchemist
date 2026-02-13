@@ -15,7 +15,7 @@ const ProjectCard = ({
   forCommunity = false
 }: {
   gen: Project
-  setGenerations: React.Dispatch<React.SetStateAction<Project[]>>
+  setGenerations?: React.Dispatch<React.SetStateAction<Project[]>>
   forCommunity?: boolean
 }) => {
 
@@ -33,7 +33,7 @@ const ProjectCard = ({
     const token = await getToken();
 
     // optimistic remove
-    setGenerations(prev => prev.filter(gen => gen.id !== id));
+    setGenerations?.(prev => prev.filter(gen => gen.id !== id));
 
     await api.delete(`/api/project/${id}`,{
       headers:{ Authorization:`Bearer ${token}` }
@@ -53,7 +53,7 @@ const ProjectCard = ({
       const {data} = await api.post(`/api/user/projects/${projectId}`,{},{
         headers:{ Authorization:`Bearer ${token}` }
       })
-      setGenerations((generations)=>generations.map((gen)=>gen.id === projectId ? {...gen, isPublished: data.isPublished} : gen));
+      setGenerations?.((generations)=>generations.map((gen)=>gen.id === projectId ? {...gen, isPublished: data.isPublished} : gen));
       toast.success(data.isPublished ? 'Project published' : 'Project unpublished');
     } catch (error:any) {
       toast.error(error?.response?.data?.message || error.message);

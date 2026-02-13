@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { dummyGenerations } from "../assets/assets";
 import type { Project } from "../Types";
 import { Loader2Icon } from "lucide-react";
 import ProjectCard from "../components/ProjectCard";
