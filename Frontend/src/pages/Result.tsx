@@ -141,12 +141,13 @@ const Result = () => {
 
           <div className="flex gap-3">
             <Link
-              to="/editGeneration"
+              to={`/edit/${project.id}`}
               className="flex items-center gap-2 bg-white/10 hover:bg-white/20 px-5 py-3 rounded-xl text-white transition"
             >
               <Edit2Icon className="w-4 h-4" />
-              <span className="hidden sm:block">Edit Generation</span>
+              Edit Generation
             </Link>
+
 
             <Link
               to="/generate"

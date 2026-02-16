@@ -13,6 +13,7 @@ import Loading from './pages/Loading';
 import { Toaster } from 'react-hot-toast';
 import FAQ from './pages/FAQ';
 import FeaturesPage from './pages/FeaturesPage';
+import EditGeneration from './pages/EditGeneration';
 
 
 function App() {
@@ -32,6 +33,7 @@ function App() {
 				<Route path="/generate" element={<Generator />} />
 				<Route path="/my-generations" element={<MyGenerations />} />
 				<Route path="/result/:projectId" element={<Result />} />
+				<Route path="/edit/:projectId" element={<EditGeneration />} />
 				<Route path="/loading" element={<Loading />} />
 			</Routes>
 
