@@ -4,7 +4,7 @@ import Title from "../components/Title"
 import UploadZone from "../components/UploadZone"
 import { useAuth, useUser } from "@clerk/clerk-react"
 import { useNavigate } from "react-router-dom"
-import { toast } from "react-hot-toast/headless"
+import { toast } from "react-hot-toast"
 import api from "../configs/axios"
 
 const Generator = () => {

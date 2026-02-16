@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { Project } from "../Types";
 import {
+  Edit2Icon,
   ImageIcon,
   Loader2Icon,
   RefreshCwIcon,
@@ -11,7 +12,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { GhostButton, PrimaryButton } from "../components/Buttons";
 import { useAuth, useUser } from "@clerk/clerk-react";
 import api from "../configs/axios";
-import { toast } from "react-hot-toast/headless";
+import { toast } from "react-hot-toast";
 
 const Result = () => {
 
@@ -138,14 +139,25 @@ const Result = () => {
             Generation Result
           </h1>
 
-          <Link
-            to="/generate"
-            className="flex items-center gap-2 bg-white/10 hover:bg-white/20 px-5 py-3 rounded-xl text-white transition"
-          >
-            <RefreshCwIcon className="w-4 h-4" />
-            <span className="hidden sm:block">New Generation</span>
-          </Link>
+          <div className="flex gap-3">
+            <Link
+              to="/editGeneration"
+              className="flex items-center gap-2 bg-white/10 hover:bg-white/20 px-5 py-3 rounded-xl text-white transition"
+            >
+              <Edit2Icon className="w-4 h-4" />
+              <span className="hidden sm:block">Edit Generation</span>
+            </Link>
+
+            <Link
+              to="/generate"
+              className="flex items-center gap-2 bg-white/10 hover:bg-white/20 px-5 py-3 rounded-xl text-white transition"
+            >
+              <RefreshCwIcon className="w-4 h-4" />
+              <span className="hidden sm:block">New Generation</span>
+            </Link>
+          </div>
         </header>
+
 
         {/* Grid Layout */}
         <div className="grid lg:grid-cols-3 gap-10">

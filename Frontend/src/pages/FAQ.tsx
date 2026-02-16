@@ -1,7 +1,5 @@
 import Faq from "../components/Faq"
 
-
-
 const FAQ = () => {
   return (
     <div className="max-sm:py-10 sm:pt-20">

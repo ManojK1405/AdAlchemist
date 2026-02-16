@@ -119,55 +119,75 @@ export const createProject = async (req: Request, res: Response) => {
     const img1 = loadImage(images[0].path, images[0].mimetype);
     const img2 = loadImage(images[1].path, images[1].mimetype);
 
-    const prompt = {
-  text: `
-Create a high-end professional advertisement image.
+    const promptImage = `
+You are a professional commercial photographer creating a premium advertisement image.
 
-The person must naturally interact with the product in a realistic way (holding, wearing, or using it depending on product type).
+CORE OBJECTIVE:
+Create a photorealistic advertisement showing a person naturally interacting with the product in a way that feels authentic and aspirational.
 
-STRICT REQUIREMENTS:
-• Product must be the main focus of the image
-• Product must remain unchanged and clearly visible
-• No distortion of product shape, logo, or design
-• Correct scale and proportions between person and product
-• Photorealistic lighting matching environment
-• Cinematic depth of field
-• Natural shadows and reflections
-• Studio-quality composition
-• Clean background with commercial aesthetics
-• No extra objects unless relevant to product context
-• Skin tones realistic
-• Hands realistic and properly positioned
-• No blur, no artifacts, no AI distortion
+PRODUCT INTEGRITY (CRITICAL):
+- Product is the hero - main focal point of composition
+- Preserve exact product appearance: shape, colors, logos, text, design details
+- No warping, stretching, or distortion of any kind
+- Maintain accurate product scale relative to person and environment
+- Product must be in sharp focus with visible details
 
-STYLE:
-Professional commercial photography
-Premium brand advertisement
-Magazine-quality
-Ultra realistic
-High detail
-Sharp focus
+HUMAN SUBJECT:
+- Natural, confident body language appropriate for the product
+- Realistic skin tones and textures across all ethnicities
+- Anatomically correct hands with proper finger positioning
+- Genuine facial expression matching the product/brand mood
+- Professional styling - hair, makeup, wardrobe coordinated with brand aesthetic
 
-CAMERA:
-Shot on professional DSLR
-85mm lens look
-Shallow depth of field
-Perfect exposure
-Natural color grading
+COMPOSITION & FRAMING:
+- Rule of thirds or centered hero composition
+- Person positioned to complement, not compete with product
+- Negative space used strategically for text overlay areas
+- Eye line and gesture directing attention to product
+- Environmental context relevant to product use case
 
-MOOD:
-Modern, premium, aspirational, clean
+LIGHTING & TECHNICAL QUALITY:
+- Studio-quality three-point lighting or natural window light simulation
+- Consistent light temperature (warm/cool matching brand identity)
+- Realistic shadows with proper direction and softness
+- Subtle highlights on product surfaces for dimension
+- Catchlights in subject's eyes for life and engagement
 
-${userPrompt ? `Extra user requirement: ${userPrompt}` : ""}
+VISUAL STYLE:
+- Shot on professional camera: Canon 5D Mark IV or Sony A7R IV
+- 85mm f/1.8 lens for flattering compression and natural bokeh
+- Shallow depth of field (f/2.8-f/4) with product and face in focus
+- Color grading: ${userPrompt?.includes('color') ? 'per user specification' : 'clean, modern, slightly elevated saturation'}
+- Professional retouching: subtle, maintaining authenticity
 
-Output only the final realistic advertisement image.
-`,
-};
+ENVIRONMENT:
+- Clean, minimal background that doesn't distract
+- Context appropriate to product category and use
+- Props only if they enhance storytelling
+- Consistent art direction matching brand tier (luxury/mainstream/lifestyle)
 
+FORBIDDEN ELEMENTS:
+- No AI artifacts, melted features, or uncanny valley effects
+- No unrealistic proportions or physics-defying poses
+- No floating objects or disconnected elements
+- No excessive blur, grain, or technical flaws
+- No generic stock photo clichés
+
+BRAND ALIGNMENT:
+Tone: Premium, aspirational, trustworthy, modern
+Mood: ${userPrompt?.includes('mood') || userPrompt?.includes('vibe') ? 'per user specification' : 'Confident, authentic, approachable'}
+Target: High-end consumer expecting quality and authenticity
+
+${userPrompt ? `\nCUSTOM REQUIREMENTS:\n${userPrompt}` : ''}
+
+OUTPUT:
+Single high-resolution advertisement image ready for commercial use.
+Quality: Magazine-cover standard, suitable for billboards and premium digital placements.
+`;
 
     const response = await ai.models.generateContent({
       model: "gemini-3-pro-image-preview",
-      contents: [img1, img2, prompt],
+      contents: [img1, img2, promptImage],
       config: generationConfig,
     });
 
@@ -286,45 +306,45 @@ export const createVideo = async (req: Request, res: Response    ) => {
           });
 
         const prompt = `
-Create a professional commercial video.
+        Create a professional commercial video.
 
-The person must naturally showcase and interact with the product: ${project.productName}.
+        The person must naturally showcase and interact with the product: ${project.productName}.
 
-Product details: ${project.productDescription || "No description provided"}.
+        Product details: ${project.productDescription || "No description provided"}.
 
-STRICT REQUIREMENTS:
-• Product must stay clearly visible at all times
-• Product must remain unchanged and realistic
-• Natural hand movement and interaction
-• Realistic physics and motion
-• Correct proportions and scale
-• No distortion or morphing
-• No unrealistic motion
-• No glitches or artifacts
+        STRICT REQUIREMENTS:
+        • Product must stay clearly visible at all times
+        • Product must remain unchanged and realistic
+        • Natural hand movement and interaction
+        • Realistic physics and motion
+        • Correct proportions and scale
+        • No distortion or morphing
+        • No unrealistic motion
+        • No glitches or artifacts
 
-CINEMATIC STYLE:
-• Smooth camera movement
-• Professional commercial framing
-• Shallow depth of field
-• Natural lighting
-• Soft shadows
-• Realistic reflections
+        CINEMATIC STYLE:
+        • Smooth camera movement
+        • Professional commercial framing
+        • Shallow depth of field
+        • Natural lighting
+        • Soft shadows
+        • Realistic reflections
 
-SHOT TYPE:
-Choose the most suitable shot automatically:
-close-up / medium shot / product focus shot / lifestyle shot
+        SHOT TYPE:
+        Choose the most suitable shot automatically:
+        close-up / medium shot / product focus shot / lifestyle shot
 
-MOOD:
-Premium, modern, aspirational advertisement
+        MOOD:
+        Premium, modern, aspirational advertisement
 
-QUALITY:
-Ultra realistic
-Brand campaign level
-High detail
-Professional video production
+        QUALITY:
+        Ultra realistic
+        Brand campaign level
+        High detail
+        Professional video production
 
-Output must look like a real advertisement filmed with a professional camera.
-`;
+        Output must look like a real advertisement filmed with a professional camera.
+        `;
 
 
         const model = 'veo-3.1-generate-preview';
