@@ -23,7 +23,8 @@ export default function Navbar() {
         { name: 'Home', href: '/#' },
         { name: 'Create', href: '/generate' },
         { name: 'Community', href: '/community' },
-        { name: 'Plans', href: '/plans' }
+        { name: 'Plans', href: '/plans' },
+        { name: 'My Generations', href: '/my-generations' }
     ];
 
     const getCredits = async ()=>{
