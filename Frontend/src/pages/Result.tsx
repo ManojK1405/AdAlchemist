@@ -70,7 +70,8 @@ const Result = () => {
     setIsGenerating(false);
 
   } catch (error: any) {
-    toast.error(error?.response?.data?.message || "Failed to generate video");
+    toast.error("Video Generation Disabled By Manoj K.");
+    //toast.error(error?.response?.data?.message || "Failed to generate video");
     setIsGenerating(false);
   }
 };
