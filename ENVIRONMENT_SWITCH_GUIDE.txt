@@ -1,0 +1,230 @@
+===========================================================
+AD ALCHEMIST - ENVIRONMENT SWITCH GUIDE
+(Development ↔ Production Setup)
+===========================================================
+
+OVERVIEW
+-----------------------------------------------------------
+This project uses:
+
+- Clerk (Authentication)
+- Render (Backend Hosting)
+- Vercel (Frontend Hosting)
+
+There are TWO environments:
+
+1) Development  → pk_test + sk_test
+2) Production   → pk_live + sk_live
+
+IMPORTANT RULE:
+Frontend and Backend must ALWAYS use keys from the SAME environment.
+
+Never mix:
+pk_test + sk_live   ❌
+pk_live + sk_test   ❌
+
+
+===========================================================
+SECTION 1 — LOCAL DEVELOPMENT MODE (localhost)
+===========================================================
+
+Frontend (.env.local)
+-----------------------------------------------------------
+VITE_CLERK_PUBLISHABLE_KEY=pk_test_xxxxx
+
+
+Backend (.env)
+-----------------------------------------------------------
+CLERK_SECRET_KEY=sk_test_xxxxx
+
+
+After changing keys:
+-----------------------------------------------------------
+Restart both servers:
+
+Frontend:
+npm run dev
+
+Backend:
+npm run dev
+
+
+Verify in browser console:
+-----------------------------------------------------------
+window.Clerk?.publishableKey
+
+It must print:
+pk_test_...
+
+
+===========================================================
+SECTION 2 — SWITCHING TO PRODUCTION MODE
+===========================================================
+
+You must update environment variables in:
+
+1) Vercel (Frontend)
+2) Render (Backend)
+
+
+-----------------------------------------------------------
+A) FRONTEND — VERCEL
+-----------------------------------------------------------
+
+Step 1:
+Go to https://vercel.com/dashboard
+
+Step 2:
+Open your project
+
+Step 3:
+Go to Settings → Environment Variables
+
+Step 4:
+Update Production variable:
+
+VITE_CLERK_PUBLISHABLE_KEY = pk_live_xxxxx
+
+IMPORTANT:
+Make sure it is set for:
+✔ Production
+✔ Preview (optional)
+
+Step 5:
+Redeploy
+
+Go to:
+Deployments → Redeploy latest
+
+Environment variable changes DO NOT apply until redeploy.
+
+
+-----------------------------------------------------------
+B) BACKEND — RENDER
+-----------------------------------------------------------
+
+Step 1:
+Go to https://dashboard.render.com
+
+Step 2:
+Open your backend service
+
+Step 3:
+Go to "Environment" tab
+
+Step 4:
+Update:
+
+CLERK_SECRET_KEY = sk_live_xxxxx
+
+Step 5:
+Click Save Changes
+
+Render usually auto-redeploys.
+If not:
+Manual Deploy → Deploy latest commit.
+
+
+-----------------------------------------------------------
+Verify Production Is Correct
+-----------------------------------------------------------
+
+Open your live site and run in browser console:
+
+window.Clerk?.publishableKey
+
+It must show:
+pk_live_...
+
+
+===========================================================
+SECTION 3 — SWITCHING BACK TO DEVELOPMENT MODE
+===========================================================
+
+Frontend (Vercel):
+-----------------------------------------------------------
+Set:
+VITE_CLERK_PUBLISHABLE_KEY = pk_test_xxxxx
+
+Redeploy.
+
+
+Backend (Render):
+-----------------------------------------------------------
+Set:
+CLERK_SECRET_KEY = sk_test_xxxxx
+
+Redeploy.
+
+
+===========================================================
+SECTION 4 — COMMON ERRORS & CAUSES
+===========================================================
+
+401 Unauthorized
+-----------------------------------------------------------
+Cause:
+Frontend and backend keys mismatch.
+
+Fix:
+Ensure pk_test ↔ sk_test OR pk_live ↔ sk_live.
+
+
+Production keys only allowed for domain
+-----------------------------------------------------------
+Cause:
+Using pk_live on localhost.
+
+Fix:
+Use pk_test locally.
+
+
+Plans not visible
+-----------------------------------------------------------
+Cause:
+Plans created in Development but using Production keys.
+
+Fix:
+Create plans in Production environment in Clerk.
+
+
+400 Bad Request from Clerk
+-----------------------------------------------------------
+Cause:
+Domain not added in Clerk Production → Domains.
+
+Fix:
+Add:
+ad-alchemist.shop
+www.ad-alchemist.shop
+
+
+===========================================================
+SECTION 5 — SAFE ENVIRONMENT STRUCTURE (RECOMMENDED)
+===========================================================
+
+LOCAL:
+pk_test
+sk_test
+
+PRODUCTION:
+pk_live
+sk_live
+
+Never use live keys on localhost.
+
+
+===========================================================
+FINAL CHECKLIST BEFORE GOING LIVE
+===========================================================
+
+✔ Production plans created in Clerk
+✔ Domain added in Clerk Production → Domains
+✔ Vercel using pk_live
+✔ Render using sk_live
+✔ Both services redeployed
+✔ Hard refresh browser
+
+===========================================================
+END OF GUIDE
+===========================================================
