@@ -50,10 +50,16 @@ export const createProject = async (req: Request, res: Response) => {
       where: { id: userId },
     });
 
-    if (!user || user.credits < 10) {
+    if (!user) {
       return res
         .status(400)
-        .json({ message: "User not found or insufficient credits" });
+        .json({ message: "User Not Found" });
+    }
+
+    if (user.credits < 10) {
+      return res
+        .status(400)
+        .json({ message: "Insufficient Credits" });
     }
 
     // Deduct credits
@@ -269,11 +275,19 @@ export const createVideo = async (req: Request, res: Response    ) => {
           where: { id: userId },
         });
 
-        if(!user || user.credits < 40){
-            return res.status(400).json({ message: 'User not found or insufficient credits' });
-        }
+        if (!user) {
+      return res
+        .status(400)
+        .json({ message: "User Not Found" });
+    }
 
-        //deduct credits for video generation i.e 10 credits
+    if (user.credits < 40) {
+      return res
+        .status(400)
+        .json({ message: "Insufficient Credits" });
+    }
+
+        //deduct credits for video generation i.e 40 credits
         await prisma.user.update({
             where: { id: userId },
             data: {
@@ -546,10 +560,16 @@ export const editGeneration = async (req: Request, res: Response) => {
       where: { id: userId },
     });
 
-    if (!user || user.credits < 5) {
+    if (!user) {
       return res
         .status(400)
-        .json({ message: "User not found or insufficient credits" });
+        .json({ message: "User Not Found" });
+    }
+
+    if (user.credits < 5) {
+      return res
+        .status(400)
+        .json({ message: "Insufficient Credits" });
     }
 
     // ✅ Get project safely
@@ -778,10 +798,16 @@ export const editVideo = async (req: Request, res: Response) => {
       where: { id: userId },
     });
 
-    if (!user || user.credits < 20) {
+    if (!user) {
       return res
         .status(400)
-        .json({ message: "User not found or Insufficient Credits" });
+        .json({ message: "User Not Found" });
+    }
+
+    if (user.credits < 20) {
+      return res
+        .status(400)
+        .json({ message: "Insufficient Credits" });
     }
 
     // ✅ Get project
